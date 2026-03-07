@@ -1,0 +1,118 @@
+<html>
+    <head> <! – Glowna –>
+            <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polskie Centrum Aplikacji TIK i Programowania www.tik.edu.pl</title>
+        <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+        }
+
+        #timer {
+            font-size: 2em;
+            margin-top: 20px;
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+        }
+
+        #footer a {
+            color: white;
+            text-decoration: none;
+        }
+    </style>
+   <div id="footer">
+        <p>Dzwonek szkolny na <a href="https://www.cyfrowydzwonek.szkola.pl" target="_blank">www.cyfrowydzwonek.szkola.pl</a></p>
+    </div>
+
+        <script>
+function startTime() {
+  var breaks= ["7:45","8.00","8.45","8.55","9.40","9.55","10.40","10.50","11.35","11.45","12.30","12.50","13.35","13.45","14.30","14.35","15.20"];
+  var today = new Date();
+  var h = today.getHours();
+  var m = today.getMinutes();
+  var s = today.getSeconds();
+  m = checkTime(m);
+  s = checkTime(s);
+  document.getElementById('txt').innerHTML =
+  h + ":" + m;
+  //BREAKE taken from www.sp5.swidnik.pl/portal_sp5/zegar/
+    for (var i = 0; i < breaks.length; i++) {
+        var s =  breaks[i].split('.');
+                try{
+        var s2 = breaks[i+1].split('.');
+                }
+                catch(e)
+                {
+                }
+        var dt = new Date();
+        var current = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(h), parseInt(m), 00);
+        var dt1 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(s[0]), parseInt(s[1]), 00);
+        var dt2 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(s2[0]), parseInt(s2[1]), 00);
+        var dt3 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(17), parseInt(05), 00);
+        if(current >= dt1 && current <= dt2)
+        {
+            if(dt2-dt1 == 2700000)
+            {
+                var diffMs = (dt2 - current); 
+                var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+                document.body.style.background = "#d42c4e";
+                document.getElementById('txt3').innerHTML =  breaks[i]+"-"+breaks[i+1];
+                document.getElementById('txt4').innerHTML = "Do końca lekcji: " + diffMins + " min";
+            }
+            else if(dt2-dt1< 2700000)
+            {
+                var diffMs = (dt2 - current); 
+                var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+                document.body.style.background = "#2cd45a";
+                document.getElementById('txt3').innerHTML =  breaks[i]+"-"+breaks[i+1];
+                document.getElementById('txt4').innerHTML = "Do końca przerwy: " + diffMins + " min";
+if(diffMins <= 1) {
+                    document.body.style.background = "#de8c28";
+                }
+            }
+        }
+        else if(current >= dt3)
+        {
+            document.body.style.background = "#2cd45a";
+            document.getElementById('txt2').innerHTML = "";
+        }
+    }
+        
+  
+  var t = setTimeout(startTime, 500);
+}
+function checkTime(i) {
+  if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
+  return i;
+}
+</script>
+    <head>
+    <body onload="startTime()">
+        <div class="container">
+            <span  style="color:white;font-size:150px;font:arial;line-height: 150px;" class="period_time" id="txt"><br></span>
+            <center><p id="txt2" style="color:white;font-size:20px;font:arial;line-height: 12px; "></p></center>
+            <center><p id="txt3" style="color:white;font-size:20px;font:arial;line-height: 12px; "></p></center>
+            <center><p id="txt4" style="color:white;font-size:20px;font:arial;line-height: 12px; "></p></center>
+        </div>
+    </body>
+</html>
