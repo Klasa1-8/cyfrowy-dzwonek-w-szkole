@@ -1,10 +1,13 @@
-<html>
-    <head> <! – Glowna –>
-            <meta charset="UTF-8">
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <!-- Glowna -->
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polskie Centrum Aplikacji TIK i Programowania www.tik.edu.pl</title>
-        <style>
+
+    <style>
         body {
             display: flex;
             flex-direction: column;
@@ -20,12 +23,7 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translateX(-50%) translateY(-50%);
-        }
-
-        #timer {
-            font-size: 2em;
-            margin-top: 20px;
+            transform: translate(-50%, -50%);
         }
 
         #footer {
@@ -40,79 +38,84 @@
             text-decoration: none;
         }
     </style>
-   <div id="footer">
-        <p>Dzwonek szkolny na <a href="https://www.cyfrowydzwonek.szkola.pl" target="_blank">www.cyfrowydzwonek.szkola.pl</a></p>
+</head>
+
+<body onload="startTime()">
+
+    <div class="container">
+        <span id="txt" style="font-size:130px; line-height:100px;"></span>
+        <center><p id="txt2" style="font-size:20px; line-height:12px;"></p></center>
+        <center><p id="txt3" style="font-size:20px; line-height:12px;"></p></center>
+        <center><p id="txt4" style="font-size:20px; line-height:12px;"></p></center>
     </div>
 
-        <script>
-function startTime() {
-  var breaks= ["7:45","8.00","8.45","8.55","9.40","9.50","10.35","10.45","11.30","11.45","12.30","12.35","13.20","13.30","14.15","14.20","15.05"];
-  var today = new Date();
-  var h = today.getHours();
-  var m = today.getMinutes();
-  var s = today.getSeconds();
-  m = checkTime(m);
-  s = checkTime(s);
-  document.getElementById('txt').innerHTML =
-  h + ":" + m;
-  //BREAKE taken from www.sp5.swidnik.pl/portal_sp5/zegar/
-    for (var i = 0; i < breaks.length; i++) {
-        var s =  breaks[i].split('.');
-                try{
-        var s2 = breaks[i+1].split('.');
-                }
-                catch(e)
-                {
-                }
-        var dt = new Date();
-        var current = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(h), parseInt(m), 00);
-        var dt1 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(s[0]), parseInt(s[1]), 00);
-        var dt2 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(s2[0]), parseInt(s2[1]), 00);
-        var dt3 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(),parseInt(17), parseInt(05), 00);
-        if(current >= dt1 && current <= dt2)
-        {
-            if(dt2-dt1 == 2700000)
-            {
-                var diffMs = (dt2 - current); 
-                var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
-                document.body.style.background = "#d42c4e";
-                document.getElementById('txt3').innerHTML =  breaks[i]+"-"+breaks[i+1];
-                document.getElementById('txt4').innerHTML = "Do końca lekcji: " + diffMins + " min";
+    <div id="footer">
+        <p>Dzwonek szkolny na 
+            <a href="https://www.cyfrowydzwonek.szkola.pl" target="_blank">
+                www.cyfrowydzwonek.szkola.pl
+            </a>
+        </p>
+    </div>
+
+    <script>
+        function startTime() {
+            var breaks = ["7:45","8.00","8.45","8.55","9.40","9.50","10.35","10.45","11.30","11.45","12.30","12.35","13.20","13.30","14.15","14.20","15.05"];
+            var today = new Date();
+            var h = today.getHours();
+            var m = today.getMinutes();
+            m = checkTime(m);
+
+            document.getElementById('txt').innerHTML = h + ":" + m;
+
+            var dt = new Date();
+            var current = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), h, m, 0);
+
+            // godzina końca zajęć
+            var endTime = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 15, 5, 0);
+
+            // jeśli po 15:05 → pusto
+            if (current >= endTime) {
+                document.body.style.background = "#2cd45a"; // zielone tło
+                document.getElementById('txt3').innerHTML = "";
+                document.getElementById('txt4').innerHTML = "";
+                return;
             }
-            else if(dt2-dt1< 2700000)
-            {
-                var diffMs = (dt2 - current); 
-                var diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
-                document.body.style.background = "#2cd45a";
-                document.getElementById('txt3').innerHTML =  breaks[i]+"-"+breaks[i+1];
-                document.getElementById('txt4').innerHTML = "Do końca przerwy: " + diffMins + " min";
-if(diffMins <= 1) {
-                    document.body.style.background = "#de8c28";
+
+            // normalne działanie przed 15:05
+            for (var i = 0; i < breaks.length - 1; i++) {
+                var s = breaks[i].split('.');
+                var s2 = breaks[i+1].split('.');
+
+                var dt1 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), parseInt(s[0]), parseInt(s[1]), 0);
+                var dt2 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), parseInt(s2[0]), parseInt(s2[1]), 0);
+
+                if (current >= dt1 && current <= dt2) {
+                    var diffMs = dt2 - current;
+                    var diffMins = Math.round((diffMs % 3600000) / 60000);
+
+                    document.getElementById('txt3').innerHTML = breaks[i] + " - " + breaks[i+1];
+
+                    if (dt2 - dt1 === 2700000) {
+                        document.body.style.background = "#d42c4e";
+                        document.getElementById('txt4').innerHTML = "Do końca lekcji: " + diffMins + " min";
+                    } else {
+                        document.body.style.background = "#2cd45a";
+                        document.getElementById('txt4').innerHTML = "Do końca przerwy: " + diffMins + " min";
+
+                        if (diffMins <= 1) {
+                            document.body.style.background = "#de8c28";
+                        }
+                    }
                 }
             }
+
+            setTimeout(startTime, 500);
         }
-        else if(current >= dt3)
-        {
-            document.body.style.background = "#2cd45a";
-            document.getElementById('txt2').innerHTML = "";
+
+        function checkTime(i) {
+            return (i < 10 ? "0" + i : i);
         }
-    }
-        
-  
-  var t = setTimeout(startTime, 500);
-}
-function checkTime(i) {
-  if (i < 10) {i = "0" + i};  // add zero in front of numbers < 10
-  return i;
-}
-</script>
-    <head>
-    <body onload="startTime()">
-        <div class="container">
-            <span  style="color:white;font-size:250px;font:arial;line-height: 200px;" class="period_time" id="txt"><br></span>
-            <center><p id="txt2" style="color:white;font-size:40px;font:arial;line-height: 12px; "></p></center>
-            <center><p id="txt3" style="color:white;font-size:40px;font:arial;line-height: 12px; "></p></center>
-            <center><p id="txt4" style="color:white;font-size:40px;font:arial;line-height: 12px; "></p></center>
-        </div>
-    </body>
+    </script>
+
+</body>
 </html>
