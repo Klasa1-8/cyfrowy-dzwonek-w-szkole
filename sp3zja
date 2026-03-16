@@ -1,0 +1,165 @@
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dzwonek szkolny - SP3 Złotoryja</title>
+
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            font-family: Arial, sans-serif;
+            transition: background-color 0.5s;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .time {
+            font-size: 180px;
+            line-height: 160px;
+            margin-bottom: 60px;
+            font-family: Arial, sans-serif;
+        }
+
+        .seconds {
+            font-size: 180px;
+            opacity: 0.8;
+        }
+
+        .info {
+            font-size: 30px;
+            line-height: 15px;
+            margin: 15px 0;
+        }
+
+        .schedule-info {
+            font-size: 25px;
+            line-height: 15px;
+            margin: 12px 0;
+            opacity: 0.9;
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 10px;
+            text-align: center;
+            width: 100%;
+            font-size: 14px;
+        }
+
+        #footer a {
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Kolory */
+        .lesson { background: #d42c4e; }     /* czerwony */
+        .break { background: #2cd45a; }      /* zielony */
+        .warning { background: #de8c28; }    /* pomarańczowy */
+        .after-school { background: #2cd45a; }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div id="txt" class="time"></div>
+        <div id="txt2" class="info"></div>
+        <div id="txt3" class="schedule-info"></div>
+        <div id="txt4" class="info"></div>
+    </div>
+
+    <div id="footer">
+        <p>Dzwonek szkolny na 
+            <a href="https://cyfrowydzwoneksp3z.w3spaces.com/" target="_blank">
+                cyfrowydzwonek.w3spaces.com
+            </a>
+        </p>
+    </div>
+
+    <script>
+        /* Twój pełny plan lekcji i przerw */
+        const BREAKS = [
+            "7:45","8:00",    // przerwa 15
+            "8:00","8:45",    // lekcja 45
+            "8:45","8:55",    // przerwa 10
+            "8:55","9:40",    // lekcja 45
+            "9:40","9:55",    // przerwa 15
+            "9:55","10:40",   // lekcja 45
+            "10:40","10:50",  // przerwa 10
+            "10:50","11:35",  // lekcja 45
+            "11:35","11:45",  // przerwa 10
+            "11:45","12:30",  // lekcja 45
+            "12:30","12:50",  // przerwa 20
+            "12:50","13:35",  // lekcja 45
+            "13:35","13:45",  // przerwa 10
+            "13:45","14:30",  // lekcja 45
+            "14:30","14:35"   // przerwa 5
+        ];
+
+        const LESSON_DURATION = 45 * 60 * 1000;
+
+        function startTime() {
+            const now = new Date();
+            const h = now.getHours().toString().padStart(2, '0');
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const s = now.getSeconds().toString().padStart(2, '0');
+
+            document.getElementById('txt').innerHTML =
+                `${h}:${m}<span class="seconds">:${s}</span>`;
+
+            checkSchoolSchedule(now);
+
+            setTimeout(startTime, 1000);
+        }
+
+        function checkSchoolSchedule(currentTime) {
+            for (let i = 0; i < BREAKS.length - 1; i += 2) {
+                const [sh, sm] = BREAKS[i].split(':').map(Number);
+                const [eh, em] = BREAKS[i+1].split(':').map(Number);
+
+                const start = new Date(currentTime);
+                start.setHours(sh, sm, 0, 0);
+
+                const end = new Date(currentTime);
+                end.setHours(eh, em, 0, 0);
+
+                if (currentTime >= start && currentTime <= end) {
+                    const duration = end - start;
+                    const minutesLeft = Math.round((end - currentTime) / 60000);
+                    const isLesson = duration === LESSON_DURATION;
+
+                    updateDisplay(BREAKS[i], BREAKS[i+1], minutesLeft, isLesson);
+                    return;
+                }
+            }
+
+            document.body.className = 'after-school';
+            document.getElementById('txt3').textContent = '';
+            document.getElementById('txt4').textContent = 'Czas wolny';
+        }
+
+        function updateDisplay(start, end, minutesLeft, isLesson) {
+            document.getElementById('txt3').textContent = `${start} - ${end}`;
+
+            if (isLesson) {
+                document.body.className = 'lesson';
+                document.getElementById('txt4').textContent =
+                    `Do końca lekcji: ${minutesLeft} min`;
+            } else {
+                document.body.className = minutesLeft <= 1 ? 'warning' : 'break';
+                document.getElementById('txt4').textContent =
+                    `Do końca przerwy: ${minutesLeft} min`;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', startTime);
+    </script>
+</body>
+</html>
