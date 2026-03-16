@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polskie Centrum Aplikacji TIK i Programowania www.tik.edu.pl</title>
 
-    <!-- Favicon (jeśli masz favicon.png w repo) -->
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="favicon.png">
 
     <style>
@@ -54,8 +54,8 @@
 
     <div id="footer">
         <p>Dzwonek szkolny na 
-            <a href="https://www.cyfrowydzwonek.szkola.pl" target="_blank">
-                www.cyfrowydzwonek.szkola.pl
+            <a href="https://klasa1-8.github.io/cyfrowy-dzwonek-w-szkole/" target="_blank">
+                www.klasa1-8.github.io/cyfrowy-dzwonek-w-szkole/
             </a>
         </p>
     </div>
@@ -79,7 +79,7 @@
             var dt = new Date();
             var current = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), h, m, 0);
 
-            // KONIEC DNIA – po 15:20 nic nie pokazujemy
+            // KONIEC DNIA – po 15:20
             var endTime = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 15, 20, 0);
 
             if (current >= endTime) {
