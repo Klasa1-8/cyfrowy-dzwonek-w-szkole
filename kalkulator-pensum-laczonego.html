@@ -1,1 +1,686 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator pensum łączonego</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        .calculator-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .calculator-header {
+            background: linear-gradient(135deg, #2d3359 0%, #1a1f3a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .calculator-header h1 {
+            margin: 0 0 10px;
+            font-size: 28px;
+        }
+
+        .calculator-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .calculator-body {
+            padding: 30px;
+        }
+
+        /* Tabela z pensami */
+        .pensum-table {
+            width: 100%;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .pensum-grid {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            min-width: 700px;
+        }
+
+        .grid-header {
+            background: #f8f9fa;
+            font-weight: 600;
+            text-align: center;
+            padding: 12px 5px;
+            border-bottom: 2px solid #e91e63;
+            font-size: 14px;
+        }
+
+        .grid-cell {
+            text-align: center;
+            padding: 10px 5px;
+            border-right: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .grid-cell:last-child {
+            border-right: none;
+        }
+
+        .grid-header:last-child {
+            background: #e91e63;
+            color: white;
+            border-bottom: 2px solid #c2185b;
+        }
+
+        .grid-cell input {
+            width: 80px;
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .grid-cell input:focus {
+            outline: none;
+            border-color: #e91e63;
+            box-shadow: 0 0 0 2px rgba(233,30,99,0.2);
+        }
+
+        .grid-cell input[readonly] {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #2d3359;
+        }
+
+        /* Sekcja dodatkowych godzin */
+        .extra-hours-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .extra-hours-section label {
+            font-weight: 600;
+            color: #2d3359;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .extra-hours-section input {
+            width: 200px;
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .tooltip-icon {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #e91e63;
+            color: white;
+            border-radius: 50%;
+            font-size: 12px;
+            text-align: center;
+            line-height: 18px;
+            cursor: help;
+            margin-left: 8px;
+        }
+
+        /* Przyciski */
+        .buttons-section {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #e91e63;
+            color: white;
+            box-shadow: 0 2px 8px rgba(233,30,99,0.3);
+        }
+
+        .btn-primary:hover {
+            background: #c2185b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(233,30,99,0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid #e91e63;
+            color: #e91e63;
+        }
+
+        .btn-outline:hover {
+            background: #e91e63;
+            color: white;
+        }
+
+        /* Wyniki */
+        .results-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #2d3359;
+            font-size: 16px;
+        }
+
+        .result-value {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .result-value.hours {
+            color: #e91e63;
+        }
+
+        .result-value.etat {
+            color: #2d3359;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 12px 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #856404;
+        }
+
+        .employee-name {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .employee-name input {
+            width: 300px;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        @media (max-width: 768px) {
+            .calculator-body {
+                padding: 20px;
+            }
+            
+            .grid-cell input {
+                width: 60px;
+                padding: 6px;
+                font-size: 12px;
+            }
+            
+            .result-value {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator-header">
+            <h1>📊 Kalkulator pensum łączonego</h1>
+            <p>Nauczyciel realizujący obowiązki na stanowiskach o różnym tygodniowym wymiarze godzin</p>
+        </div>
+        
+        <div class="calculator-body">
+            <!-- Dane nauczyciela -->
+            <div class="employee-name">
+                <input type="text" id="teacherName" placeholder="Imię i nazwisko nauczyciela (opcjonalnie)">
+            </div>
+            
+            <!-- Tabela z pensami -->
+            <div class="pensum-table">
+                <div class="pensum-grid" id="pensumGrid">
+                    <!-- Nagłówki będą generowane JS -->
+                </div>
+            </div>
+            
+            <!-- Dodatkowe godziny -->
+            <div class="extra-hours-section">
+                <label>
+                    Liczba dodatkowych godzin realizowanych wg ustalonego pensum
+                    <span class="tooltip-icon" title="Np. zajęcia rewalidacyjne, resocjalizacyjne, socjoterapeutyczne, wczesnego wspomagania rozwoju dziecka, z zakresu pomocy psychologiczno-pedagogicznej">?</span>
+                </label>
+                <input type="number" id="extraHours" value="0" min="0" step="1">
+            </div>
+            
+            <!-- Przyciski -->
+            <div class="buttons-section">
+                <button class="btn btn-primary" id="calculateBtn">🔢 Przelicz</button>
+                <button class="btn btn-secondary" id="clearBtn">🗑️ Wyczyść</button>
+                <button class="btn btn-outline" id="printBtn">🖨️ Drukuj</button>
+            </div>
+            
+            <!-- Wyniki -->
+            <div class="results-section" id="results">
+                <div class="result-item">
+                    <span class="result-label">📌 Wytyczone pensum:</span>
+                    <span class="result-value hours" id="pensumResult">—</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">📊 Łączna liczba godzin:</span>
+                    <span class="result-value" id="totalHoursResult">—</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">⏱️ Godziny ponadwymiarowe:</span>
+                    <span class="result-value hours" id="overHoursResult">—</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">📈 Wymiar etatu:</span>
+                    <span class="result-value etat" id="etatResult">—</span>
+                </div>
+                <div id="warningMessage" class="warning" style="display: none;"></div>
+            </div>
+            
+            <div class="footer-note">
+                <strong>Uwaga!</strong> Wyliczenia mają charakter pomocniczy. Autor nie ponosi odpowiedzialności za wykorzystanie kalkulatora.<br>
+                Zgodnie z art. 42 ust. 5c Karty Nauczyciela – wynik zaokrągla się do pełnych godzin: czas zajęć do pół godziny pomija się, a powyżej pół godziny liczy się za pełną godzinę.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Definicja pensów (tygodniowy obowiązkowy wymiar godzin)
+        const pensa = [
+            { wartosc: 18, nazwa: "18", opis: "nauczyciele przedszkoli, bibliotekarze" },
+            { wartosc: 19, nazwa: "19", opis: "logopedzi, pedagodzy, psycholodzy" },
+            { wartosc: 20, nazwa: "20", opis: "nauczyciele szkół podstawowych (kl. I-III)" },
+            { wartosc: 21, nazwa: "21", opis: "nauczyciele szkół podstawowych (kl. IV-VIII)" },
+            { wartosc: 22, nazwa: "22", opis: "nauczyciele szkół ponadpodstawowych" },
+            { wartosc: 23, nazwa: "23", opis: "nauczyciele praktycznej nauki zawodu" },
+            { wartosc: 24, nazwa: "24", opis: "instruktorzy praktycznej nauki zawodu" },
+            { wartosc: 25, nazwa: "25", opis: "nauczyciele szkół artystycznych" },
+            { wartosc: 26, nazwa: "26", opis: "nauczyciele szkół policealnych" },
+            { wartosc: 30, nazwa: "30", opis: "nauczyciele szkół dla dorosłych" }
+        ];
+        
+        // Przechowywanie wartości godzin
+        let hourValues = {};
+        
+        // Inicjalizacja tabeli
+        function initGrid() {
+            const grid = document.getElementById('pensumGrid');
+            grid.innerHTML = '';
+            
+            // Nagłówki
+            pensa.forEach(p => {
+                const header = document.createElement('div');
+                header.className = 'grid-header';
+                header.innerHTML = `${p.nazwa}<br><small style="font-size: 10px; font-weight: normal;">${p.opis.split(' ')[0]}</small>`;
+                header.title = p.opis;
+                grid.appendChild(header);
+            });
+            
+            // Nagłówek dla sumy
+            const sumHeader = document.createElement('div');
+            sumHeader.className = 'grid-header';
+            sumHeader.innerHTML = 'SUMA<br><small>godzin</small>';
+            grid.appendChild(sumHeader);
+            
+            // Wiersz z polami input
+            pensa.forEach((p, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'grid-cell';
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.id = `hour_${p.wartosc}`;
+                input.value = '0';
+                input.min = '0';
+                input.step = '1';
+                input.placeholder = '0';
+                input.addEventListener('input', function() {
+                    if (this.value < 0) this.value = 0;
+                    updateSum();
+                });
+                cell.appendChild(input);
+                grid.appendChild(cell);
+                hourValues[p.wartosc] = input;
+            });
+            
+            // Komórka sumy
+            const sumCell = document.createElement('div');
+            sumCell.className = 'grid-cell';
+            const sumInput = document.createElement('input');
+            sumInput.type = 'text';
+            sumInput.id = 'sumHours';
+            sumInput.readOnly = true;
+            sumInput.value = '0';
+            sumCell.appendChild(sumInput);
+            grid.appendChild(sumCell);
+        }
+        
+        // Aktualizacja sumy godzin
+        function updateSum() {
+            let total = 0;
+            pensa.forEach(p => {
+                const val = parseFloat(hourValues[p.wartosc]?.value) || 0;
+                total += val;
+            });
+            const sumInput = document.getElementById('sumHours');
+            if (sumInput) sumInput.value = total;
+            return total;
+        }
+        
+        // Główna funkcja obliczeniowa
+        function calculate() {
+            // Zbieranie danych
+            const hours = {};
+            let totalHours = 0;
+            let denominator = 0;
+            
+            pensa.forEach(p => {
+                const val = parseFloat(hourValues[p.wartosc]?.value) || 0;
+                hours[p.wartosc] = val;
+                totalHours += val;
+                denominator += val / p.wartosc;
+            });
+            
+            const extra = parseFloat(document.getElementById('extraHours').value) || 0;
+            const finalTotalHours = totalHours + extra;
+            
+            // Obliczenie pensum (art. 42 ust. 5c Karty Nauczyciela)
+            let pensumDok = 0;
+            if (denominator > 0) {
+                pensumDok = finalTotalHours / denominator;
+            }
+            
+            // Zaokrąglanie: do pół godziny pomija, powyżej pół godziny liczy za pełną
+            let pensum;
+            const fractional = pensumDok - Math.floor(pensumDok);
+            if (fractional <= 0.5) {
+                pensum = Math.floor(pensumDok);
+            } else {
+                pensum = Math.ceil(pensumDok);
+            }
+            
+            // Godziny ponadwymiarowe
+            const overHours = finalTotalHours > pensum ? finalTotalHours - pensum : 0;
+            
+            // Wymiar etatu
+            let etatValue = pensum > 0 ? finalTotalHours / pensum : 0;
+            let etatText = '';
+            let warning = '';
+            
+            if (etatValue >= 1.5) {
+                etatText = `PEŁNY ETAT (UWAGA: PONAD 1,5 ETATU !!!) – ${etatValue.toFixed(2)} etatu`;
+                warning = 'Uwaga: Łączny wymiar zatrudnienia przekracza 1,5 etatu!';
+            } else if (etatValue >= 1) {
+                etatText = `PEŁNY ETAT (${etatValue.toFixed(2)} etatu)`;
+            } else {
+                etatText = `NIEPEŁNY ETAT – ${etatValue.toFixed(2).replace('.', ',')} etatu`;
+            }
+            
+            // Wyświetlanie wyników
+            document.getElementById('pensumResult').innerHTML = `${pensum} godz. tygodniowo`;
+            document.getElementById('totalHoursResult').innerHTML = `${finalTotalHours} godz.`;
+            document.getElementById('overHoursResult').innerHTML = `${overHours} godz.`;
+            document.getElementById('etatResult').innerHTML = etatText;
+            
+            const warningDiv = document.getElementById('warningMessage');
+            if (warning) {
+                warningDiv.innerHTML = `⚠️ ${warning}`;
+                warningDiv.style.display = 'block';
+            } else {
+                warningDiv.style.display = 'none';
+            }
+            
+            // Dodanie informacji o nauczycielu jeśli podano
+            const teacherName = document.getElementById('teacherName').value.trim();
+            if (teacherName) {
+                const resultsDiv = document.getElementById('results');
+                let nameElement = document.getElementById('teacherResult');
+                if (!nameElement) {
+                    nameElement = document.createElement('div');
+                    nameElement.id = 'teacherResult';
+                    nameElement.className = 'result-item';
+                    nameElement.style.borderBottom = '2px solid #e91e63';
+                    nameElement.style.marginBottom = '10px';
+                    resultsDiv.insertBefore(nameElement, resultsDiv.firstChild);
+                }
+                nameElement.innerHTML = `<span class="result-label">👤 Nauczyciel:</span><span class="result-value" style="font-size: 18px;">${teacherName}</span>`;
+            }
+        }
+        
+        // Czyszczenie wszystkich pól
+        function clearAll() {
+            pensa.forEach(p => {
+                if (hourValues[p.wartosc]) {
+                    hourValues[p.wartosc].value = '0';
+                }
+            });
+            document.getElementById('extraHours').value = '0';
+            document.getElementById('teacherName').value = '';
+            updateSum();
+            
+            // Reset wyników
+            document.getElementById('pensumResult').innerHTML = '—';
+            document.getElementById('totalHoursResult').innerHTML = '—';
+            document.getElementById('overHoursResult').innerHTML = '—';
+            document.getElementById('etatResult').innerHTML = '—';
+            document.getElementById('warningMessage').style.display = 'none';
+            
+            const teacherElement = document.getElementById('teacherResult');
+            if (teacherElement) teacherElement.remove();
+        }
+        
+        // Funkcja drukowania
+        function printCalculator() {
+            const teacherName = document.getElementById('teacherName').value.trim();
+            const printWindow = window.open('', '_blank');
+            
+            // Pobranie aktualnych wyników
+            const pensum = document.getElementById('pensumResult').innerHTML;
+            const totalHours = document.getElementById('totalHoursResult').innerHTML;
+            const overHours = document.getElementById('overHoursResult').innerHTML;
+            const etat = document.getElementById('etatResult').innerHTML;
+            
+            // Zbieranie danych z tabeli
+            let tableRows = '';
+            pensa.forEach(p => {
+                const val = hourValues[p.wartosc]?.value || '0';
+                if (parseFloat(val) > 0) {
+                    tableRows += `<tr><td>${p.wartosc} godz. (${p.opis})</td><td style="text-align:center">${val}</td></tr>`;
+                }
+            });
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Kalkulator pensum łączonego - wydruk</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Arial, sans-serif;
+                            padding: 40px;
+                            margin: 0;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #e91e63;
+                            padding-bottom: 20px;
+                        }
+                        h1 { color: #2d3359; margin: 0 0 10px; }
+                        .date { color: #666; font-size: 12px; }
+                        .teacher-info {
+                            background: #f5f5f5;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-bottom: 20px;
+                            text-align: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                            color: #2d3359;
+                        }
+                        table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin: 20px 0;
+                        }
+                        th, td {
+                            border: 1px solid #ddd;
+                            padding: 10px;
+                            text-align: left;
+                        }
+                        th {
+                            background: #f8f9fa;
+                            color: #2d3359;
+                        }
+                        .results {
+                            margin: 30px 0;
+                            padding: 20px;
+                            background: #f8f9fa;
+                            border-radius: 8px;
+                        }
+                        .result-row {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 10px 0;
+                            border-bottom: 1px solid #ddd;
+                        }
+                        .result-label { font-weight: bold; }
+                        .result-value { font-weight: bold; color: #e91e63; }
+                        .footer {
+                            margin-top: 40px;
+                            text-align: center;
+                            font-size: 11px;
+                            color: #999;
+                            border-top: 1px solid #ddd;
+                            padding-top: 20px;
+                        }
+                        @media print {
+                            body { margin: 0; padding: 20px; }
+                            .no-print { display: none; }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>📊 Kalkulator pensum łączonego</h1>
+                        <div class="date">Data: ${new Date().toLocaleDateString('pl-PL')}</div>
+                    </div>
+                    ${teacherName ? `<div class="teacher-info">👤 Nauczyciel: ${teacherName}</div>` : ''}
+                    
+                    <h3>Wprowadzone dane:</h3>
+                    <table>
+                        <tr><th>Stanowisko (pensum)</th><th>Liczba godzin</th></tr>
+                        ${tableRows || '<tr><td colspan="2" style="text-align:center">Brak wprowadzonych godzin</td></tr>'}
+                        <tr style="background:#f0f0f0; font-weight:bold">
+                            <td>Dodatkowe godziny</td>
+                            <td style="text-align:center">${document.getElementById('extraHours').value || '0'}</td>
+                        </tr>
+                    </table>
+                    
+                    <div class="results">
+                        <div class="result-row"><span class="result-label">📌 Wytyczone pensum:</span><span class="result-value">${pensum}</span></div>
+                        <div class="result-row"><span class="result-label">📊 Łączna liczba godzin:</span><span class="result-value">${totalHours}</span></div>
+                        <div class="result-row"><span class="result-label">⏱️ Godziny ponadwymiarowe:</span><span class="result-value">${overHours}</span></div>
+                        <div class="result-row"><span class="result-label">📈 Wymiar etatu:</span><span class="result-value">${etat}</span></div>
+                    </div>
+                    
+                    <div class="footer">
+                        <strong>Uwaga!</strong> Wyliczenia mają charakter pomocniczy. Zgodnie z art. 42 ust. 5c Karty Nauczyciela.<br>
+                        Wygenerowano z kalkulatora pensum łączonego
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Inicjalizacja po załadowaniu strony
+        document.addEventListener('DOMContentLoaded', () => {
+            initGrid();
+            
+            document.getElementById('calculateBtn').addEventListener('click', calculate);
+            document.getElementById('clearBtn').addEventListener('click', clearAll);
+            document.getElementById('printBtn').addEventListener('click', printCalculator);
+            
+            // Obsługa Enter w polach
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') calculate();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
