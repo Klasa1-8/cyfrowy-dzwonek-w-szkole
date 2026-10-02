@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cyfrowy dzwonek w szkole z www.tik.edu.pl</title>
+    <title>Cyfrowy dzwonek w szkole z www.tikedupl.wixsite.com/aplikacjetik</title>
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <style>
         body {
@@ -50,16 +50,16 @@
     </div>
 
     <div id="footer">
-        <p>Dzwonek szkolny na 
-            <a href="https://www.cyfrowydzwonek.szkola.pl" target="_blank">
-                www.cyfrowydzwonek.szkola.pl
+        <p>Cyfrowy dzwonek szkolny na 
+            <a href="www.tikedupl.wixsite.com/aplikacjetik" target="_blank">
+                www.tikedupl.wixsite.com/aplikacjetik
             </a>
         </p>
     </div>
 
     <script>
         function startTime() {
-            var breaks = ["7:45","8.00","8.45","8.55","9.40","9.50","10.35","10.45","11.30","11.45","12.30","12.35","13.20","13.30","14.15","14.20","15.05"];
+            var breaks = ["7.45","8.00","8.45","8.55","9.40","9.50","10.35","10.45","11.30","11.45","12.30","12.35","13.20","13.30","14.15","14.20","15.05"];
             var today = new Date();
             var h = today.getHours();
             var m = today.getMinutes();
@@ -75,13 +75,13 @@
 
             // jeśli po 15:05 → pusto
             if (current >= endTime) {
-                document.body.style.background = "#2cd45a"; // zielone tło
+                document.body.style.background = "#2b73ff"; // zielone tło to #2cd45a
                 document.getElementById('txt3').innerHTML = "";
                 document.getElementById('txt4').innerHTML = "";
                 return;
             }
 
-            // normalne działanie przed 15:05
+            // normalne działanie przed 15.05
             for (var i = 0; i < breaks.length - 1; i++) {
                 var s = breaks[i].split('.');
                 var s2 = breaks[i+1].split('.');
@@ -96,14 +96,14 @@
                     document.getElementById('txt3').innerHTML = breaks[i] + " - " + breaks[i+1];
 
                     if (dt2 - dt1 === 2700000) {
-                        document.body.style.background = "#d42c4e";
+                        document.body.style.background = "#2b73ff"; //kolor czerwony to #d42c4e
                         document.getElementById('txt4').innerHTML = "Do końca lekcji: " + diffMins + " min";
                     } else {
                         document.body.style.background = "#2cd45a";
                         document.getElementById('txt4').innerHTML = "Do końca przerwy: " + diffMins + " min";
 
                         if (diffMins <= 1) {
-                            document.body.style.background = "#de8c28";
+                            document.body.style.background = "#de8c28"; //kolor pomarańczowy
                         }
                     }
                 }
