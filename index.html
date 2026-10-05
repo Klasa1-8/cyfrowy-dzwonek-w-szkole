@@ -58,64 +58,59 @@
     </div>
 
     <script>
-        function startTime() {
-            var breaks = ["7.45","8.00","8.45","8.55","9.40","9.50","10.35","10.45","11.30","11.45","12.30","12.35","13.20","13.30","14.15","14.20","15.05"];
-            var today = new Date();
-            var h = today.getHours();
-            var m = today.getMinutes();
-            m = checkTime(m);
+    function startTime() {
+        var breaks = ["7.45","8.00","8.45","8.55","9.40","9.50","10.35","10.45","11.30","11.45","12.30","12.35","13.20","13.30","14.15","14.20","15.05"];
+        var today = new Date();
+        var h = today.getHours();
+        var m = today.getMinutes();
+        
+        document.getElementById('txt').innerHTML = h + ":" + checkTime(m);
+        
+        var current = new Date(today.getFullYear(), today.getMonth(), today.getDate(), h, m, today.getSeconds());
+        var endTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 15, 5, 0);
+        var startTimeDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 7, 45, 0);
 
-            document.getElementById('txt').innerHTML = h + ":" + m;
+        // Domyślny kolor tła (np. ciemny lub niebieski), jeśli nie pasuje do żadnego przedziału
+        document.body.style.background = "#2b73ff";
 
-            var dt = new Date();
-            var current = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), h, m, 0);
+        if (current >= endTime || current < startTimeDay) {
+            document.getElementById('txt3').innerHTML = "Poza godzinami lekcyjnymi";
+            document.getElementById('txt4').innerHTML = "";
+            setTimeout(startTime, 500);
+            return;
+        }
 
-            // godzina końca zajęć
-            var endTime = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 15, 5, 0);
+        for (var i = 0; i < breaks.length - 1; i++) {
+            var s = breaks[i].split('.');
+            var s2 = breaks[i+1].split('.');
+            var dt1 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(s[0]), parseInt(s[1]), 0);
+            var dt2 = new Date(today.getFullYear(), today.getMonth(), today.getDate(), parseInt(s2[0]), parseInt(s2[1]), 0);
 
-            // jeśli po 15:05 → pusto
-            if (current >= endTime) {
-                document.body.style.background = "#2b73ff"; // zielone tło to #2cd45a
-                document.getElementById('txt3').innerHTML = "";
-                document.getElementById('txt4').innerHTML = "";
-                return;
-            }
-
-            // normalne działanie przed 15.05
-            for (var i = 0; i < breaks.length - 1; i++) {
-                var s = breaks[i].split('.');
-                var s2 = breaks[i+1].split('.');
-
-                var dt1 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), parseInt(s[0]), parseInt(s[1]), 0);
-                var dt2 = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), parseInt(s2[0]), parseInt(s2[1]), 0);
-
-                if (current >= dt1 && current <= dt2) {
-                    var diffMs = dt2 - current;
-                    var diffMins = Math.round((diffMs % 3600000) / 60000);
-
-                    document.getElementById('txt3').innerHTML = breaks[i] + " - " + breaks[i+1];
-
-                    if (dt2 - dt1 === 2700000) {
-                        document.body.style.background = "#2b73ff"; //kolor czerwony to #d42c4e
-                        document.getElementById('txt4').innerHTML = "Do końca lekcji: " + diffMins + " min";
-                    } else {
-                        document.body.style.background = "#2cd45a";
-                        document.getElementById('txt4').innerHTML = "Do końca przerwy: " + diffMins + " min";
-
-                        if (diffMins <= 1) {
-                            document.body.style.background = "#de8c28"; //kolor pomarańczowy
-                        }
+            if (current >= dt1 && current <= dt2) {
+                var diffMs = dt2 - current;
+                var diffMins = Math.round((diffMs % 3600000) / 60000);
+                document.getElementById('txt3').innerHTML = breaks[i] + " - " + breaks[i+1];
+                
+                if (dt2 - dt1 === 2700000) { // 45 minut lekcji
+                    document.body.style.background = "#2b73ff";
+                    document.getElementById('txt4').innerHTML = "Do końca lekcji: " + diffMins + " min";
+                } else { // przerwa
+                    document.body.style.background = "#2cd45a";
+                    document.getElementById('txt4').innerHTML = "Do końca przerwy: " + diffMins + " min";
+                    if (diffMins <= 1) {
+                        document.body.style.background = "#de8c28";
                     }
                 }
+                break;
             }
-
-            setTimeout(startTime, 500);
         }
+        setTimeout(startTime, 500);
+    }
 
-        function checkTime(i) {
-            return (i < 10 ? "0" + i : i);
-        }
-    </script>
+    function checkTime(i) {
+        return (i < 10 ? "0" + i : i);
+    }
+</script>
 
 </body>
 </html>
